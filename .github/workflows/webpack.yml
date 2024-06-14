@@ -1,26 +1,35 @@
-name: NodeJS with Webpack
+name: NodeJs with Webpack
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
 
 jobs:
-  build:
+  deploy:
     runs-on: self-hosted
 
-    strategy:
-      matrix:
-        node-version: [18.x]
-
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-    - name: Use Node.js ${{ matrix.node-version }}
+    - name: Set up Node.js
       uses: actions/setup-node@v3
       with:
-        node-version: ${{ matrix.node-version }}
+        node-version: '18'
 
-    - name: Build
+    - name: Install dependencies
+      run: npm install
+
+    - name: Build React app
+      run: npm run build
+
+    - name: Copy build files to Nginx directory
       run: |
-        npm install
-        npm run build
+        sudo cp -r build/* /var/www/html/
+      if: success()
+
+    - name: Restart Nginx
+      run: |
+        sudo systemctl restart nginx
+      if: success()
