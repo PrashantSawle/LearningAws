@@ -22,6 +22,6 @@ jobs:
 
     - name: Build
       run: |
-        npm ci
+        npm install
         npx webpack
         npm run build
